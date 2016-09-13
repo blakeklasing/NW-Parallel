@@ -10,16 +10,33 @@
 #include <algorithm>
 #include <vector>
 
-#define MATCH 5
+#define MATCH 2
 #define MISMATCH -1
-#define GAP -2
-#define DEFAULT -2
+#define GAP -1
+#define DEFAULT -1
 
-void printArray(std::vector<std::vector<int> > matrix)
+void printArray(std::vector<std::vector<int> > matrix, std::string text1, std::string text2)
 {
-    for(int i = 0; i < matrix[0].size(); ++i)
+    //Print out the first string
+    std::cout << "\t\t";
+    for(int i =0; i < text1.length(); ++i)
     {
-        for(int j = 0; j < matrix.size(); ++j)
+            std::cout << text1.at(i) << "\t";
+    }
+    std::cout << std::endl;
+
+    //print out the matrix and second string
+    for(int i = 0; i < matrix.size(); ++i)
+    {
+        if(i!=0)
+        {
+            std::cout << text2.at(i-1) << "\t";
+        }
+        else
+        {
+            std::cout << "\t";
+        }
+        for(int j = 0; j < matrix[0].size(); ++j)
         {
             std::cout << matrix[i][j] << "\t";
         }
@@ -33,10 +50,6 @@ int maximum(int one, int two, int three)
     return std::max(maxNum, three);
 }
 
-/*
-        This function still needs work
-        --- compared it to matrixs online and there were some num hat were off
-*/
 void fillInMatrix(std::string first, std::string second)
 {
     int strlength1 = first.length() + 1;
@@ -49,23 +62,24 @@ void fillInMatrix(std::string first, std::string second)
     }
 
     //First fill in the top row
-    for(int i = 0; i < strlength1; ++i)
+    for(int i = 0; i < strlength2; ++i)
     {
         matrix[i][0] = DEFAULT * i;
     }
 
     //Fill in the first column
-    for(int j = 0; j < strlength2; ++j)
+    for(int j = 0; j < strlength1; ++j)
     {
         matrix[0][j] =  DEFAULT * j;
     }
+
     //The first row/column of matrix does not count
     //therefore, for loops start at 1
-    for(int i = 1; i < strlength1; ++i)
+    for(int i = 1; i < strlength2; ++i)
     {
-        for(int j = 1; j < strlength2; ++j)
+        for(int j = 1; j < strlength1; ++j)
         {
-            bool match = (first.at(i-1) == second.at(j-1))? true: false;
+            bool match = (second.at(i-1) == first.at(j-1))? true: false;
             int diag = matrix[i-1][j-1] + (match? MATCH: MISMATCH);
             int up = matrix[i-1][j] + GAP;
             int left = matrix[i][j-1] + GAP;
@@ -73,7 +87,7 @@ void fillInMatrix(std::string first, std::string second)
         }
     }
     //print array
-    printArray(matrix);
+    printArray(matrix, first, second);
 }
 
 int main(int argc, char *argv[])
