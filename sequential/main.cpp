@@ -1,5 +1,5 @@
 /*
-    Blake Klesing
+    Blake Klasing
     Stacy Gramajo
     Sequential Needleman–Wunsch algorithm
     September 12, 2016
@@ -88,6 +88,35 @@ void fillInMatrix(std::string first, std::string second)
     }
     //print array
     printArray(matrix, first, second);
+}
+
+//After the matrix is complete, traceback method will derive the final string (with gaps, mismatches, or matches)
+
+//Pending ------ Not Done
+void traceback(std::vector<std::vector<int> > matrix, std::string text1, std::string text2)
+{
+    int length1 = text1.length();
+    int length2 = text2.length();
+
+    //starting at the right-most square of the matrix and
+    //going up
+   /* while(length1 > 0 && length2 > 0)
+    {
+        if(length1 > 0 && length2 > 0 && --)
+        {
+            length1--;
+            length2--;
+        }
+        else if
+        {
+
+        }
+        else
+        {
+            length2--;
+        }
+    }*/
+
 }
 
 int main(int argc, char *argv[])
