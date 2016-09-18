@@ -10,10 +10,10 @@
 #include <algorithm>
 #include <vector>
 
-#define MATCH 2
+#define MATCH 5
 #define MISMATCH -1
-#define GAP -1
-#define DEFAULT -1
+#define GAP -2
+#define DEFAULT -2
 
 void printArray(std::vector<std::vector<int> > matrix, std::string text1, std::string text2)
 {
@@ -48,6 +48,49 @@ int maximum(int one, int two, int three)
 {
     int maxNum = std::max(one, two);
     return std::max(maxNum, three);
+}
+//After the matrix is complete, traceback method will derive the final string (with gaps, mismatches, or matches)
+void traceback(std::vector<std::vector<int> > matrix, std::string text1, std::string text2)
+{
+    int length1 = text1.length();
+    int length2 = text2.length();
+    std::string alignmentA = "";
+    std::string alignmentB = "";
+
+    //starting at the right-most square of the matrix and
+    //going up
+   while(length1 > 0 && length2 > 0)
+    {
+        int currScore =  matrix[length2][length1];
+        bool match = (text2.at(length2-1) == text1.at(length1-1))? true: false;
+        int diagScore = matrix[length2-1][length1-1] + (match? MATCH: MISMATCH);
+        int upScore = matrix[length1 - 1][length2] + GAP;
+        int leftScore = matrix[length1][length2 - 1] + GAP;
+
+        if(currScore == diagScore)
+        {
+            alignmentA = text1.at(length1 - 1) + alignmentA;
+            alignmentB = text2.at(length2 - 1) + alignmentB;
+            length1--;
+            length2--;
+        }
+        else if (currScore == upScore)
+        {
+            alignmentA = text1.at(length1-1) + alignmentA;
+            alignmentB = "-" + alignmentB;
+            length2--;
+        }
+        else if (currScore == leftScore)
+        {
+            alignmentA = "-" + alignmentA;
+            alignmentB = text2.at(length2-1) + alignmentB;
+            length1--;
+        }
+    } //end of while loop
+
+    std::cout << "Alignment:\t+" << alignmentA << std::endl;
+    std::cout << "\t\t+" << alignmentB << std::endl;
+
 }
 
 void fillInMatrix(std::string first, std::string second)
@@ -88,36 +131,9 @@ void fillInMatrix(std::string first, std::string second)
     }
     //print array
     printArray(matrix, first, second);
+    traceback(matrix, first, second);
 }
 
-//After the matrix is complete, traceback method will derive the final string (with gaps, mismatches, or matches)
-
-//Pending ------ Not Done
-void traceback(std::vector<std::vector<int> > matrix, std::string text1, std::string text2)
-{
-    int length1 = text1.length();
-    int length2 = text2.length();
-
-    //starting at the right-most square of the matrix and
-    //going up
-   /* while(length1 > 0 && length2 > 0)
-    {
-        if(length1 > 0 && length2 > 0 && --)
-        {
-            length1--;
-            length2--;
-        }
-        else if
-        {
-
-        }
-        else
-        {
-            length2--;
-        }
-    }*/
-
-}
 
 int main(int argc, char *argv[])
 {
