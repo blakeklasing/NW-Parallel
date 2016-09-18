@@ -1,0 +1,27 @@
+Background
+    -The original purpose of this algorithm was to compare amino acid sequences of two proteins. It was used to find similarities within the sequences. Their algorithm attempts to maximize similarity between the two sequences. 
+    -The process of aligning protein and nucleotides is an important topic within the field of bioinformatics.  
+    -needleman wunsch one of the first dynamic programming algorithms to compared biological sequences such as RNA/DNA nucleotides and proteins. 
+    -Developed by Saul B. Needlman and Christian D. Wunsch in 1970. 
+    -The algorithm implements a dynamic programming solution by dividing the task of aligning the full sequence of characters into multiple smaller alignment problems. The solutions to these smaller problems are then reconstructed into a solution for the optimal sequence alignment of the full sequence. 
+    -There are many different algorithms used in sequence alignment. However, the Needleman-Wunsch algorithm provides the highest quality global(full sequence) alignment 
+    -
+
+    -Other applications of this algorithm:
+        -Computer Stereo Vision
+
+Problem statement(prob weave this into background)
+    -
+
+
+Sequential Implementation
+
+Parallel Implementation
+
+Data
+-input data used
+    -where we got the dataset
+-results
+
+
+Conclusion
