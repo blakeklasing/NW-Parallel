@@ -10,10 +10,9 @@
 #include <algorithm>
 #include <vector>
 
-#define MATCH 5
+#define MATCH 2
 #define MISMATCH -1
 #define GAP -2
-#define DEFAULT -2
 
 void printArray(std::vector<std::vector<int> > matrix, std::string text1, std::string text2)
 {
@@ -107,13 +106,13 @@ void fillInMatrix(std::string first, std::string second)
     //First fill in the top row
     for(int i = 0; i < strlength2; ++i)
     {
-        matrix[i][0] = DEFAULT * i;
+        matrix[i][0] = GAP * i;
     }
 
     //Fill in the first column
     for(int j = 0; j < strlength1; ++j)
     {
-        matrix[0][j] =  DEFAULT * j;
+        matrix[0][j] =  GAP * j;
     }
 
     //The first row/column of matrix does not count
@@ -131,7 +130,7 @@ void fillInMatrix(std::string first, std::string second)
     }
     //print array
     printArray(matrix, first, second);
-    traceback(matrix, first, second);
+    //traceback(matrix, first, second);
 }
 
 

@@ -23,10 +23,10 @@ class poolItem
 {
   public:
     int row, column;
-    poolItem(int, int);
+    void addItem(int, int);
 };
 
-poolItem::poolItem(int i, int j)
+void poolItem::addItem(int i, int j)
 {
     row = i;
     column = j;
@@ -64,25 +64,60 @@ int maximum(int one, int two, int three)
     int maxNum = std::max(one, two);
     return std::max(maxNum, three);
 }
-void findvalue(std::string first, std::string second, std::vector<std::vector<matrix> > & grid, int i, int j)
+
+void findvalue(std::string first, std::string second, std::vector<std::vector<matrix> > & grid, int i, int j, std::vector<poolItem> & pool)
 {
     bool match = (second.at(i-1) == first.at(j-1))? true: false;
     int diag = grid[i-1][j-1].value + (match? MATCH:MISMATCH);
     int up = grid[i-1][j].value + GAP;
     int left = grid[i][j-1].value + GAP;
     grid[i][j].set_value(maximum(diag, up, left));
+
+    //add two new items into the array - bottom and to the right
+    int tmp = 0;
+    poolItem item1;
+    poolItem item2;
+    while(count != 2)
+    { //first check the bottom box -- not out of bounds
+        if(grid.size() > (i+1))
+        { //add and count++
+          item1.addItem(i+1, j);
+          pool.push_back(item1);
+          tmp++;
+        }
+        else
+        {//don't add the bottom cell - only increase the tmp value
+          tmp++;
+        }
+        //add the second item
+        if(grid[0].size() > (j+1))
+        {
+            if(grid[i-1][j+1].value != null)
+            {
+              item2.addItem(i, j+1);
+              pool.push_back(item2);
+              tmp++;
+            }
+        }
+        else
+        {//don't add the left cell - only increase the tmp value;
+          tmp++;
+        }
+
+    }//end of while stmt
 }
-void thread_function(std::vector<std::vector<matrix> > & grid, std::string first, std::string second, int & count, std::mutex & lock, std::vector<matrix> & pool)
+void thread_function(std::vector<std::vector<matrix> > & grid, std::string first, std::string second, long & count,
+                     std::mutex & lock, std::vector<poolItem> & pool)
 {
     bool temp = false;
-    matrix item;
+    poolItem item;
     while(count > 0)
     {
         lock.lock();
         if(!pool.empty())
         {
-            //item =
-
+            item = pool.front();
+            pool.erase(0); //erase first item from the vector
             temp = true;
             count--;
         }
@@ -90,11 +125,12 @@ void thread_function(std::vector<std::vector<matrix> > & grid, std::string first
 
         if(temp)
         {
-          findvalue(first, second, std::ref(grid), item.loc_i, item.loc_j);
+          findvalue(first, second, std::ref(grid), item.row, item.column, std::ref(pool));
+          temp = false;
         }
         else
         { //wait a second to search the pool again
-            std::this_thread::sleep_for(std::chrono::seconds());
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
 }
@@ -162,18 +198,18 @@ int main(int argc, char *argv[])
   std::cout << "Second String: "<< second << std::endl;
   //Setting up the matrix
   std::vector<std::vector<matrix> > grid;
-  std::vector<std::thread> threads(THREADS); 
+  std::vector<std::thread> threads(THREADS);
   fillInMatrix(std::ref(grid), first, second);
   //create the pool of squares from the matrix
-  poolItem tmp (1,1);
+  poolItem tmp;
+  tmp.addItem(1,1);
   std::vector<poolItem> pool;
   pool.push_back(tmp);
 
-  printArray(grid, first, second);
   //Setting up the threads
   for (int i = 0; i < THREADS; ++i)
 	{
-  	//threads[i] = std::thread(thread_function, std::ref(count), std::ref(lock));
+  	//threads[i] = std::thread(thread_function, std::ref(grid), first, second, std::ref(count), std::ref(lock), ref(pool));
 	}
 
   clock_t begin_time = clock();
