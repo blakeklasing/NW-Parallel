@@ -1,0 +1,133 @@
+% ----------------------------------------------------------------
+% AMS-LaTeX Paper ************************************************
+% **** -----------------------------------------------------------
+\documentclass{article}
+%\usepackage{graphicx}
+%\usepackage{algorithm}
+\usepackage{amsmath}
+\usepackage{siunitx}
+\usepackage{verbatim}
+% ----------------------------------------------------------------
+\vfuzz2pt % Don't report over-full v-boxes if over-edge is small
+\hfuzz2pt % Don't report over-full h-boxes if over-edge is small
+% THEOREMS -------------------------------------------------------
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+
+\newtheorem{defn}[thm]{Definition}
+
+\newtheorem{rem}[thm]{Remark}
+
+% MATH -----------------------------------------------------------
+\newcommand{\norm}[1]{\left\Vert#1\right\Vert}
+\newcommand{\card}[1]{\left|#1\right|}
+\newcommand{\abs}[1]{\left\vert#1\right\vert}
+\newcommand{\set}[1]{\left\{#1\right\}}
+\newcommand{\Real}{\mathbb R}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\To}{\longrightarrow}
+\newcommand{\BX}{\mathbf{B}(X)}
+\newcommand{\A}{\mathcal{A}}
+% ----------------------------------------------------------------
+\begin{document}
+
+\title{Parallelization of the Needleman-Wunsch Algorithm\\
+\author{Blake Klasing\\
+Stacy Gramajo\\
+COP6616}}%
+\maketitle
+% ----------------------------------------------------------------
+\section{Abstract}
+
+In Bioinformatics, one of the well-known problem is understanding evolutionary relationships through sequence alignments that can be found in a number set of data: protein, DNA, RNA, or genes. A fundamental method used for global sequence alignment is Needleman-Wunsch algorithm. It solves the problem of finding the optimal alignment among two sequences, based on a simple scoring system. We propose to examine this algorithm and implement a parallelized program that can decrease the execution time for analyzing two sequences without sacrificing correctness and time complexity.
+
+
+\section{Introduction}
+
+The Needleman-Wunsch(NW) algorithm is global sequence alignment method that exemplifies the relationship between sequences using a scoring system. Using a dynamic programming approach, there are two parts to the algorithm in order to retrieve the optimal score: creating a matrix and traceback. The traceback method is somewhat trivial that can be accomplished in linear time. However, the creation of the scoring matrix poses a more complex problem that we will be focusing on. 
+
+Overall, the NW algorithm achieves a $O(n\cdot m)$ time complexity and $O(n\cdot m)$ space complexity, where $n$ and $m$ are the lengths of the input sequences to be aligned. Although this is not an issue if the sequences are small, as they increase, the size of the scoring matrix as well as computing it grows in a quadratic fashion. For huge datasets that are the norm within the computational biology field, this poses an issue. For this reason, speeding up this algorithm can have great affects within the bioinformatics community, if not at least provide some insight into how to parallelize such an algorithm. 
+
+We propose to parallelize the method that computes the scoring matrix within the NW algorithm in order to improve the overall execution time. Our main goal is to achieve reasonable speedup versus the original NW algorithm by utilizing current consumer grade multicore processing architectures. 
+
+\section{Related Work}
+The Needleman-Wunsch algorithm is widely known for solving this fundamental biology problem of global RNA sequence alignment. An algorithm proposed by Temple F. Smith and Michael S. Waterman is also very well known for solving a very similar problem, local RNA sequence alignment [6]. Both of these algorithms solve the problem of optimal RNA alignment by dynamic programming, reaching the same time complexity. There are many other implementations and concepts of solving the problem of non-structured optimal RNA alignment, but we will focus on the NW dynamic programming solution.
+
+Some parallelized implementations of NW take advantage of the hardware being used to not only speed up the original non-parallelized algorithm, but also push this hardware to its limits in order to squeeze as much computation as possible out of it with a parallelized algorithm. A group of researchers at the University of Delaware create a highly parallelized implementation based on fine grain multithreaded execution and architecture model [1]. 
+ 
+The majority of research around parallelizing the NW algorithm focuses on speeding up the calculation of the scoring matrix, which is where most of the computation takes place. However, some researchers focus on both the method of creating the scoring matrix, as well as the backtracking method [2]. Researchers at the University of Puerto Rico at Mayaguez bring a more complete approach of parallelizing the NW algorithm by offering a parallel implementation of the backtracking method, in addition to the scoring matrix method. This group of researchers take advantage of properties of symmetry between the matrix $D$ and $D'$, where $D$ is a matrix based on the original sequences being aligned, and $D'$ is a matrix based on the same sequences in reverse order.
+
+Other approaches include dividing the input sequences into several smaller sequences, calculating the matrices, backtracking to find the optimal score, and combining the results from each set of sequence alignments. This method is based on finding local optimal sequence alignment. This implies that it is not guaranteed to find the optimal global sequence alignment score. However, it may provide insight into possible solutions to parallelizing this global optima algorithm [5].  
+
+\section{Background}
+
+\subsection{Needleman-Wunsch}
+
+To compute the NW, the algorithm needs two sequences as the input. Assume in this case that sequence 1 is m and sequence 2 is n. Using the sequences, a table is created where the number of rows equal to length of m+1 and the number of columns equal to the length of n+1. After the creation of the matrix S, the first row and column in precomputed. Then the matrix takes each of the remaining cells in the matrix and computes the maximum of three equations: 
+
+
+\begin{equation}
+	S(i, j) = max 
+	\begin{cases}
+		S(i-1, j-1) + c(i, j)\\
+		S(i-1, j) + c(i, -)\\
+		S(i, j-1) + c(-, j)\\
+	\end{cases}
+\end{equation}
+
+Once S has been filled, the final score is taken by the last item that was inputted. In order to print out the string containing gaps, mismatches, or matches, NW uses S to trace back starting at S [m+1, n+1].
+
+The scoring system that is used to determine the overall score consists of three types of variables used: Gap, Mismatch, and Match. Gap is represented as the ‘-‘ character symbol that will appear in either/both of the sequences as the output solution. Match is the number added in the score if the characters of index i equal each other. Mismatch is usually a negative value that decrease the final score. 
+
+\subsection{Multiprocessor Programming Concepts}
+In both the lock-based and lock-free implementation, it uses an unbounded pool as one of its architecture design. A bounded or unbounded item determines if the structure is limited to a specific capacity. If the object is unbounded, then it is not confined to a size; whereas, bounded is visa-versa. A pool is an object that contains methods where producer threads is able to store items and consumer threads are able to retrieve items to work on. 
+
+The lock-based method will contain a few mutexes. Mutexes are locks used to ensure mutual exclusion on critical sections. The lock-free does not use synchronization primitives, such as the mutex. It is a program that must be thread-safe when accessing a shared data. When constructing a lock-free program, primitives like the CAS (compare-and-swap) is used. The CAS is a type of instruction that has three parameters: the address of object x, value it is expected e, and value that it needs to change to v. When it is executed, CAS checks if x is equal to e. If true, then the value is updated to v and returns true; otherwise, x is not altered and returns false. 
+
+\section{Overview}
+Our implementation program being build is a locked based system that contains a 2D array for the matrix, a pool, and mutexes. In the lock-based, the first row/column is first computed. The first thread begins calculated the first cell. When it is finished, the thread adds two items into the pool where other threads can retrieve and start computing its score. This cycle continues until the matrix has been complete.
+The lock in the program is used every time a thread retrieves an item in the pool to provide mutual exclusion. It is critical that two threads do not receive the same item from the pool that it would need to compute on. Additionally, there will be a second mutex that will increment every time a cell has been completed. The purpose of this variable is to ensure the program knows when to stop.
+If time permits, a second program will be constructed to be a lock-free based algorithm using the same idea presented in the first method. Unlike the first, the second algorithm will consist of compare-and-set operations with a status array to determine if a cell is Busy, Waiting, or Undefined. It will have similar concepts of the elimination stack presented in Chapter 10. 
+
+\section{Experimental Results}
+-TBD-
+
+\section{Conclusion}
+-TBD-
+
+\section{References}
+
+\begin{comment}
+
+Martins, W. S., et al. "A multithreaded parallel implementation of a dynamic programming algorithm for sequence comparison." Pacific Symposium on Biocomputing. Vol. 6. 2001.
+Url: http://wwwmayr.in.tum.de/lehre/2007SS/cb/reading/Martins01.pdf
+
+2. Seguel, Jaime, and Carlos Torres. "Paralellization of Needleman-Wunsch String Alignment Method." (2011): 239-244.
+Url: http://www.worldcomp-proceedings.com/proc/p2011/BIC5034.pdf
+
+3. Devi, S. Nirmala, and S. P. Rajagopalan. "A modified dynamic parallel algorithm for sequence alignment in biosequences." International Journal of Computer Applications 60.18 (2012).
+Url: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.303.3050&rep=rep1&type=pdf
+
+4. de la Torre, Luis, and Jaime Seguel. "A Parallel Needleman-Wunsch-Hirschberg Bio-sequence Alignment Algorithm." CSC. 2010.
+Url: https://www.researchgate.net/publication/221142998_A_Parallel_Needleman_-_Wunsch_-_Hirschberg_Bio-sequence_Alignment_Algorithm 
+
+5. 
+Fa, Z; Xiang-Zhen, Q; Zhi-Yong, L. A parallel Smith-Waterman algorithm based on divide and conquer. Proceedings Fifth International Conference on Algorithms & Architectures for Parallel Processing, 2002. 162, Jan. 2002.
+
+
+6. Smith, Temple F., and Michael S. Waterman. "Identification of Common Molecular Subsequences." Journal of Molecular Biology 147.1 (1981): 195-97. Web.
+http://dornsife.usc.edu/assets/sites/516/docs/papers/msw_papers/msw-042.pdf 
+
+---- Book Reference
+Herlihy, Maurice, and Nir Shavit. The Art of Multiprocessor Programming. Amsterdam: Elsevier/Morgan Kaufmann, 2008. Print.
+
+-- understanding the NW problem reference
+
+"Needleman–Wunsch Algorithm." Wikipedia. Wikimedia Foundation, n.d. Web.
+\end{comment}
+
+ % ----------------------------------------------------------------
+\end{document}
+% ----------------------------------------------------------------
