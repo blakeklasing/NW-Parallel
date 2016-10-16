@@ -22,11 +22,10 @@
 class poolItem
 {
   public:
-    static int row, column;
+    int row, column;
     poolItem(int, int);
 };
-int poolItem::row;
-int poolItem::column; 
+
 poolItem::poolItem(int i, int j)
 {
     row = i;
@@ -36,15 +35,12 @@ poolItem::poolItem(int i, int j)
 class matrix
 {
   public:
-    static int value, loc_i, loc_j;
+    int value, loc_i, loc_j;
     void set_value(int);
     void set_ij(int, int);
     void set_all(int, int, int);
 };
 
-int matrix::value;
-int matrix::loc_i;
-int matrix::loc_j;
 void matrix::set_all(int x, int y, int z)
 {
     value = x;
@@ -166,21 +162,23 @@ int main(int argc, char *argv[])
   std::cout << "Second String: "<< second << std::endl;
   //Setting up the matrix
   std::vector<std::vector<matrix> > grid;
+  std::vector<std::thread> threads(THREADS); 
   fillInMatrix(std::ref(grid), first, second);
   //create the pool of squares from the matrix
   poolItem tmp (1,1);
   std::vector<poolItem> pool;
   pool.push_back(tmp);
+
   printArray(grid, first, second);
   //Setting up the threads
-  /*for (int i = 0; i < THREADS; ++i)
+  for (int i = 0; i < THREADS; ++i)
 	{
-  	threads[i] = std::thread(thread_function, std::ref(count), std::ref(lock));
+  	//threads[i] = std::thread(thread_function, std::ref(count), std::ref(lock));
 	}
 
   clock_t begin_time = clock();
   //Run the threads
-	for (int i = 0; i < nbThreads; ++i)
+	for (int i = 0; i < THREADS; ++i)
 	{
 		if (threads[i].joinable())
 		{
@@ -192,5 +190,5 @@ int main(int argc, char *argv[])
   float diffticks = end_time - begin_time;
   float diffms = (diffticks) / CLOCKS_PER_SEC;
 
-  std::cout << "Time Elapse: " << diffms << std::endl;*/
+  std::cout << "Time Elapse: " << diffms << std::endl;
 }
