@@ -19,6 +19,20 @@
 #define MISMATCH -1
 #define GAP -2
 
+class poolItem
+{
+  public:
+    static int row, column;
+    poolItem(int, int);
+};
+int poolItem::row;
+int poolItem::column; 
+poolItem::poolItem(int i, int j)
+{
+    row = i;
+    column = j;
+}
+
 class matrix
 {
   public:
@@ -28,6 +42,9 @@ class matrix
     void set_all(int, int, int);
 };
 
+int matrix::value;
+int matrix::loc_i;
+int matrix::loc_j;
 void matrix::set_all(int x, int y, int z)
 {
     value = x;
@@ -37,7 +54,7 @@ void matrix::set_all(int x, int y, int z)
 
 void matrix::set_ij (int i, int j)
 {
-    loc_i = i
+    loc_i = i;
     loc_j = j;
 }
 
@@ -51,24 +68,24 @@ int maximum(int one, int two, int three)
     int maxNum = std::max(one, two);
     return std::max(maxNum, three);
 }
-void findvalue(std::string first, std::string second, std::vector<std::vector<matrix> > & grid, i, j)
+void findvalue(std::string first, std::string second, std::vector<std::vector<matrix> > & grid, int i, int j)
 {
     bool match = (second.at(i-1) == first.at(j-1))? true: false;
-    int diag = grid[i-1][j-1] + (match? MATCH:MISMATCH);
-    int up = grid[i-1][j] + GAP;
-    int left = grid[i][j-1] + GAP;
+    int diag = grid[i-1][j-1].value + (match? MATCH:MISMATCH);
+    int up = grid[i-1][j].value + GAP;
+    int left = grid[i][j-1].value + GAP;
     grid[i][j].set_value(maximum(diag, up, left));
 }
-void thread_function(std::string first, std::string second, int & count, std::mutex & lock)
+void thread_function(std::vector<std::vector<matrix> > & grid, std::string first, std::string second, int & count, std::mutex & lock, std::vector<matrix> & pool)
 {
     bool temp = false;
-    matrix item = null;
+    matrix item;
     while(count > 0)
     {
         lock.lock();
         if(!pool.empty())
         {
-            item =
+            //item =
 
             temp = true;
             count--;
@@ -109,18 +126,17 @@ void printArray(std::vector<std::vector<matrix> > grid, std::string first, std::
         }
         for(int j = 0; j < grid[0].size(); ++j)
         {
-            std::cout << matrix[i][j] << "\t";
+            std::cout << grid[i][j].value << "\t";
         }
         std::cout << std::endl;
     }
 }
 
-std::vector<std::vector<matrix> > fillInMatrix(std::string first, std::string second)
+void fillInMatrix(std::vector<std::vector<matrix> > & grid, std::string first, std::string second)
 {
   /*An extra row and column was added for the gap score*/
     int strlength1 = first.length() + 1;
     int strlength2 = second.length() + 1;
-    std::vector<std::vector<matrix> > grid;
     grid.resize(strlength2);
     for(int k = 0; k < strlength2; ++k)
     {
@@ -138,26 +154,26 @@ std::vector<std::vector<matrix> > fillInMatrix(std::string first, std::string se
     {
         grid[0][j].set_all(GAP * j, 0, j);
     }
-
-    return grid;
 }
 
 int main(int argc, char *argv[])
 {
-  std::string first = "";
-  std::string second = "";
+  std::string first = "CTTCA";
+  std::string second = "CTACA";
   long count = first.length() * second.length();
   std::mutex lock;
   std::cout << "First String: " << first << std::endl;
   std::cout << "Second String: "<< second << std::endl;
   //Setting up the matrix
-  std::vector<std::vector<matrix> > grid = fillInMatrix(first, second);
+  std::vector<std::vector<matrix> > grid;
+  fillInMatrix(std::ref(grid), first, second);
   //create the pool of squares from the matrix
-  std::vector<matrix> pool;
-  pool.set_ij(1, 1);
-  printmatrix(grid, first, second);
+  poolItem tmp (1,1);
+  std::vector<poolItem> pool;
+  pool.push_back(tmp);
+  printArray(grid, first, second);
   //Setting up the threads
-  for (int i = 0; i < THREADS; ++i)
+  /*for (int i = 0; i < THREADS; ++i)
 	{
   	threads[i] = std::thread(thread_function, std::ref(count), std::ref(lock));
 	}
@@ -176,5 +192,5 @@ int main(int argc, char *argv[])
   float diffticks = end_time - begin_time;
   float diffms = (diffticks) / CLOCKS_PER_SEC;
 
-  std::cout << "Time Elapse: " << diffms << std::endl;
+  std::cout << "Time Elapse: " << diffms << std::endl;*/
 }
