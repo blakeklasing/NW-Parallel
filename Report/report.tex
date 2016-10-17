@@ -77,7 +77,7 @@ Other approaches include dividing the input sequences into several smaller seque
 
 \subsection{Needleman-Wunsch}
 
-To compute the NW, the algorithm needs two sequences as the input. Assume in this case that sequence 1 is m and sequence 2 is n. Using the sequences, a table is created where the number of rows equal to length of m+1 and the number of columns equal to the length of n+1. After the creation of the matrix S, the first row and column in precomputed. Then the matrix takes each of the remaining cells in the matrix and computes the maximum of three equations: 
+To compute the NW, the algorithm needs two sequences as the input. Assuming in this case that sequence 1 is m and sequence 2 is n. Using the sequences, a table is created where the number of rows equal to length of m+1 and the number of columns equal to the length of n+1. After the creation of the matrix S, the first row and column in precomputed. Then the matrix takes each of the remaining cells in the matrix and computes the maximum of three equations: 
 
 
 \begin{equation}
@@ -114,6 +114,12 @@ If time permits, a second program will be constructed to be a lock-free based al
 \begin{itemize}
 	\item
 	Lock based implementation
+	\item
+	Achieving speedup against the original NW algorithm
+	\item 
+	Achieving speedup comparable to other parallel implementations of sequence alignment algorithms
+	\item
+	using pools effectively to avoid ABA
 	\item 
 	acquiring implementations of related work that will compared against our algorithm. 
 \end{itemize}
