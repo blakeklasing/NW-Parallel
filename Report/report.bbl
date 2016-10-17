@@ -1,0 +1,26 @@
+\begin{thebibliography}{1}
+
+\bibitem{seguel_2011}
+Carlos~Torres Jaime~Seguel.
+\newblock Paralellization of needleman-wunsch string alignment method.
+\newblock {\em BIOCOMP}, 1:239--244, 2011.
+
+\bibitem{martins_2001}
+W.~S. Martins, J.~B.~Del Cuvillo, F.~J. Useche, K.~B. Theobald, and G.~R. Gao.
+\newblock A multithreaded parallel implementation of a dynamic programming
+  algorithm for sequence comparison.
+\newblock {\em Pacific Symposium on Biocomputing}, 6:311–322, 2001.
+
+\bibitem{smith_waterman_1981}
+T.~F. Smith and M.~S. Waterman.
+\newblock Identification of common molecular subsequences.
+\newblock {\em Journal of Molecular Biology}, 147(1):195–197, 1981.
+
+\bibitem{zhang_2004}
+F.~Zhang, XZ~Qiao, and ZY~Liu.
+\newblock Parallel divide and conquer bio-sequence comparison based on
+  smith-waterman algorithm.
+\newblock {\em Science in China Series F-Information Sciences},
+  47(2):221–231, 2004.
+
+\end{thebibliography}

@@ -65,13 +65,13 @@ Overall, the NW algorithm achieves a $O(n\cdot m)$ time complexity and $O(n\cdot
 We propose to parallelize the method that computes the scoring matrix within the NW algorithm in order to improve the overall execution time. Our main goal is to achieve reasonable speedup versus the original NW algorithm by utilizing current consumer grade multicore processing architectures. 
 
 \section{Related Work}
-The Needleman-Wunsch algorithm is widely known for solving this fundamental biology problem of global RNA sequence alignment. An algorithm proposed by Temple F. Smith and Michael S. Waterman is also very well known for solving a very similar problem, local RNA sequence alignment [6]. Both of these algorithms solve the problem of optimal RNA alignment by dynamic programming, reaching the same time complexity. There are many other implementations and concepts of solving the problem of non-structured optimal RNA alignment, but we will focus on the NW dynamic programming solution.
+The Needleman-Wunsch algorithm is widely known for solving this fundamental biology problem of global RNA sequence alignment. An algorithm proposed by Temple F. Smith and Michael S. Waterman is also very well known for solving a very similar problem, local RNA sequence alignment \cite{smith_waterman_1981}. Both of these algorithms solve the problem of optimal RNA alignment by dynamic programming, reaching the same time complexity. There are many other implementations and concepts of solving the problem of non-structured optimal RNA alignment, but we will focus on the NW dynamic programming solution.
 
-Some parallelized implementations of NW take advantage of the hardware being used to not only speed up the original non-parallelized algorithm, but also push this hardware to its limits in order to squeeze as much computation as possible out of it with a parallelized algorithm. A group of researchers at the University of Delaware create a highly parallelized implementation based on fine grain multithreaded execution and architecture model [1]. 
+Some parallelized implementations of NW take advantage of the hardware being used to not only speed up the original non-parallelized algorithm, but also push this hardware to its limits in order to squeeze as much computation as possible out of it with a parallelized algorithm. A group of researchers at the University of Delaware create a highly parallelized implementation based on fine grain multithreaded execution and architecture model \cite{martins_2001}. 
  
-The majority of research around parallelizing the NW algorithm focuses on speeding up the calculation of the scoring matrix, which is where most of the computation takes place. However, some researchers focus on both the method of creating the scoring matrix, as well as the backtracking method [2]. Researchers at the University of Puerto Rico at Mayaguez bring a more complete approach of parallelizing the NW algorithm by offering a parallel implementation of the backtracking method, in addition to the scoring matrix method. This group of researchers take advantage of properties of symmetry between the matrix $D$ and $D'$, where $D$ is a matrix based on the original sequences being aligned, and $D'$ is a matrix based on the same sequences in reverse order.
+The majority of research around parallelizing the NW algorithm focuses on speeding up the calculation of the scoring matrix, which is where most of the computation takes place. However, some researchers focus on both the method of creating the scoring matrix, as well as the backtracking method \cite{seguel_2011}. Researchers at the University of Puerto Rico at Mayaguez bring a more complete approach of parallelizing the NW algorithm by offering a parallel implementation of the backtracking method, in addition to the scoring matrix method. This group of researchers take advantage of properties of symmetry between the matrix $D$ and $D'$, where $D$ is a matrix based on the original sequences being aligned, and $D'$ is a matrix based on the same sequences in reverse order.
 
-Other approaches include dividing the input sequences into several smaller sequences, calculating the matrices, backtracking to find the optimal score, and combining the results from each set of sequence alignments. This method is based on finding local optimal sequence alignment. This implies that it is not guaranteed to find the optimal global sequence alignment score. However, it may provide insight into possible solutions to parallelizing this global optima algorithm [5].  
+Other approaches include dividing the input sequences into several smaller sequences, calculating the matrices, backtracking to find the optimal score, and combining the results from each set of sequence alignments. This method is based on finding local optimal sequence alignment. This implies that it is not guaranteed to find the optimal global sequence alignment score. However, it may provide insight into possible solutions to parallelizing this global optima algorithm \cite{zhang_2004}.  
 
 \section{Background}
 
@@ -109,7 +109,8 @@ If time permits, a second program will be constructed to be a lock-free based al
 \section{Conclusion}
 -TBD-
 
-\section{References}
+\bibliography{references}
+\bibliographystyle{plain}
 
 \begin{comment}
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2015.9.13)  16 OCT 2016 16:35
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2015.9.13)  16 OCT 2016 21:29
 entering extended mode
 **report.tex
 (report.tex
@@ -619,15 +619,30 @@ Underfull \hbox (badness 1527) in paragraph at lines 102--105
 []\OT1/ptm/m/n/10 Our im-ple-men-ta-tion pro-gram be-ing build is a
  []
 
-[2] [3
+(report.bbl
+Underfull \hbox (badness 7151) in paragraph at lines 4--7
+[]\OT1/ptm/m/n/9 Carlos Tor-res Jaime Seguel.  Par-alel-liza-tion of
+ []
+
+[2]
+Missing character: There is no â in font ptmr7t!
+Missing character: There is no € in font ptmr7t!
+Missing character: There is no “ in font ptmr7t!
+Missing character: There is no â in font ptmr7t!
+Missing character: There is no € in font ptmr7t!
+Missing character: There is no “ in font ptmr7t!
+Missing character: There is no â in font ptmr7t!
+Missing character: There is no € in font ptmr7t!
+Missing character: There is no “ in font ptmr7t!
+) [3
 
 ] (report.aux) ) 
 Here is how much of TeX's memory you used:
- 10563 strings out of 493698
- 226012 string characters out of 3144412
- 238223 words of memory out of 3000000
- 13820 multiletter control sequences out of 15000+200000
- 35205 words of font info for 82 fonts, out of 3000000 for 9000
+ 10573 strings out of 493698
+ 226122 string characters out of 3144412
+ 238235 words of memory out of 3000000
+ 13825 multiletter control sequences out of 15000+200000
+ 37926 words of font info for 85 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
  39i,9n,39p,10394b,378s stack positions out of 5000i,500n,10000p,200000b,50000s
 {C:/Program Files/MiKTeX 2.9/fonts/enc/dvips/fontname/8r.enc}<C
@@ -638,7 +653,7 @@ MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.
 type1/urw/courier/ucrr8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times
 /utmb8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmr8a.pfb><C:/P
 rogram Files/MiKTeX 2.9/fonts/type1/urw/times/utmri8a.pfb>
-Output written on report.pdf (3 pages, 89732 bytes).
+Output written on report.pdf (3 pages, 97221 bytes).
 PDF statistics:
  45 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
