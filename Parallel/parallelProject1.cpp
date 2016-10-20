@@ -7,15 +7,13 @@
 #include <iostream>
 #include <thread>
 #include <mutex>
-#include <atomic>
 #include <vector>
-#include <math.h>
+#include <climits>
 #include <fstream>
 #include <time.h>
-#include <algorithm>
 
 #define THREADS 2
-#define MATCH 2
+#define MATCH 5
 #define MISMATCH -1
 #define GAP -2
 
@@ -36,11 +34,16 @@ class matrix
 {
   public:
     int value, loc_i, loc_j;
+    matrix();
     void set_value(int);
     void set_ij(int, int);
     void set_all(int, int, int);
 };
 
+matrix::matrix()
+{
+    value = INT_MIN;
+}
 void matrix::set_all(int x, int y, int z)
 {
     value = x;
@@ -65,23 +68,30 @@ int maximum(int one, int two, int three)
     return std::max(maxNum, three);
 }
 
-void findvalue(std::string first, std::string second, std::vector<std::vector<matrix> > & grid, int i, int j, std::vector<poolItem> & pool)
-{
+void findvalue(std::string first, std::string second, std::vector<std::vector<matrix> > & grid, int i,
+               int j, std::vector<poolItem> & pool, std::mutex & stmt, std::mutex & lock)
+{ //normal calculation that can be seen in the NW sequential program
     bool match = (second.at(i-1) == first.at(j-1))? true: false;
     int diag = grid[i-1][j-1].value + (match? MATCH:MISMATCH);
     int up = grid[i-1][j].value + GAP;
     int left = grid[i][j-1].value + GAP;
     grid[i][j].set_value(maximum(diag, up, left));
-
+    /*debugging --------------------
+    stmt.lock();
+    std::cout << "Finished Calculating: "<< "[" << i << "," << j << "]" << std::endl;
+    stmt.unlock();*/
     //add two new items into the array - bottom and to the right
+    //There are protocols added because of various situations that can occur
     int tmp = 0;
     poolItem item1;
     poolItem item2;
-    while(count != 2)
+    while(tmp != 2)
     { //first check the bottom box -- not out of bounds
-        if(grid.size() > (i+1))
+        lock.lock();
+        if(grid.size() > (i+1) && grid[i+1][j].value == INT_MIN) //if this doesn't work --- try minValue
         { //add and count++
           item1.addItem(i+1, j);
+          grid[i+1][j].value = 0;
           pool.push_back(item1);
           tmp++;
         }
@@ -89,12 +99,15 @@ void findvalue(std::string first, std::string second, std::vector<std::vector<ma
         {//don't add the bottom cell - only increase the tmp value
           tmp++;
         }
+        lock.unlock();
+        lock.lock();
         //add the second item
-        if(grid[0].size() > (j+1))
+        if(grid[0].size() > (j+1) && grid[i][j+1].value == INT_MIN)
         {
-            if(grid[i-1][j+1].value != null)
+            if(grid[i-1][j+1].value != INT_MIN)
             {
               item2.addItem(i, j+1);
+              grid[i][j+1].value = 0;
               pool.push_back(item2);
               tmp++;
             }
@@ -103,29 +116,30 @@ void findvalue(std::string first, std::string second, std::vector<std::vector<ma
         {//don't add the left cell - only increase the tmp value;
           tmp++;
         }
-
+        lock.unlock();
     }//end of while stmt
 }
 void thread_function(std::vector<std::vector<matrix> > & grid, std::string first, std::string second, long & count,
-                     std::mutex & lock, std::vector<poolItem> & pool)
+                     std::mutex & enqueue, std::vector<poolItem> & pool, std::mutex & stmt, std::mutex & dequeue)
 {
     bool temp = false;
     poolItem item;
     while(count > 0)
     {
-        lock.lock();
+        //need to lock the pool because another thread might retrieve the item
+        dequeue.lock();
         if(!pool.empty())
         {
             item = pool.front();
-            pool.erase(0); //erase first item from the vector
+            pool.erase(pool.begin()); //erase first item from the vector
             temp = true;
             count--;
         }
-        lock.unlock();
+        dequeue.unlock();
 
         if(temp)
-        {
-          findvalue(first, second, std::ref(grid), item.row, item.column, std::ref(pool));
+        { //Calculate the matrix item
+          findvalue(first, second, std::ref(grid), item.row, item.column, std::ref(pool), std::ref(stmt), std::ref(enqueue));
           temp = false;
         }
         else
@@ -190,10 +204,11 @@ void fillInMatrix(std::vector<std::vector<matrix> > & grid, std::string first, s
 
 int main(int argc, char *argv[])
 {
-  std::string first = "CTTCA";
-  std::string second = "CTACA";
+  //Set up the variables
+  std::string first = "GCATGCUGCATGCUGCATGCUGCATGCU";
+  std::string second = "GATTACAGATTACAGATTACAGATTACA";
   long count = first.length() * second.length();
-  std::mutex lock;
+  std::mutex enqueue, dequeue, stmt; //stmt is just for testing
   std::cout << "First String: " << first << std::endl;
   std::cout << "Second String: "<< second << std::endl;
   //Setting up the matrix
@@ -205,13 +220,11 @@ int main(int argc, char *argv[])
   tmp.addItem(1,1);
   std::vector<poolItem> pool;
   pool.push_back(tmp);
-
   //Setting up the threads
   for (int i = 0; i < THREADS; ++i)
 	{
-  	//threads[i] = std::thread(thread_function, std::ref(grid), first, second, std::ref(count), std::ref(lock), ref(pool));
+  	threads[i] = std::thread(thread_function, std::ref(grid), first, second, std::ref(count), std::ref(enqueue), std::ref(pool), std::ref(stmt), std::ref(dequeue));
 	}
-
   clock_t begin_time = clock();
   //Run the threads
 	for (int i = 0; i < THREADS; ++i)
@@ -225,6 +238,6 @@ int main(int argc, char *argv[])
   clock_t end_time = clock();
   float diffticks = end_time - begin_time;
   float diffms = (diffticks) / CLOCKS_PER_SEC;
-
+//  printArray(grid, first, second);
   std::cout << "Time Elapse: " << diffms << std::endl;
 }

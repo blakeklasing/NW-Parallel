@@ -1,16 +1,16 @@
 /*
     Blake Klasing
     Stacy Gramajo
-    Sequential Needleman–Wunsch algorithm
+    Sequential Needleman-Wunsch algorithm
     September 12, 2016
 */
 
 #include <iostream>
 #include <string.h>
-#include <algorithm>
 #include <vector>
+#include <time.h>
 
-#define MATCH 2
+#define MATCH 5
 #define MISMATCH -1
 #define GAP -2
 
@@ -117,6 +117,7 @@ void fillInMatrix(std::string first, std::string second)
 
     //The first row/column of matrix does not count
     //therefore, for loops start at 1
+    clock_t begin_time = clock();
     for(int i = 1; i < strlength2; ++i)
     {
         for(int j = 1; j < strlength1; ++j)
@@ -128,19 +129,22 @@ void fillInMatrix(std::string first, std::string second)
             matrix[i][j] = maximum(diag, up, left);
         }
     }
-    //print array
-    printArray(matrix, first, second);
+    clock_t end_time = clock();
+    float diffticks = end_time - begin_time;
+    float diffms = (diffticks) / CLOCKS_PER_SEC;
+    std::cout << "Time Elapse: " << diffms << std::endl;
+//    printArray(matrix, first, second);
     //traceback(matrix, first, second);
 }
 
 
 int main(int argc, char *argv[])
 {
-    std::string first, second;
-    std::cout << "Input first string: " << std::endl;
-    std::cin >> first;
-    std::cout << "Input second string: " <<std::endl;
-    std::cin >> second;
+    //Set up the variables
+    std::string first = "GCATGCUGCATGCUGCATGCUGCATGCU";
+    std::string second = "GATTACAGATTACAGATTACAGATTACA";
+    std::cout << "First String: " << first << std::endl;
+    std::cout << "Second String: "<< second << std::endl;
 
     fillInMatrix(first, second);
 }
