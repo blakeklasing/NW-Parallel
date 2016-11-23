@@ -1,0 +1,4 @@
+this implementation uses MPI (message passing interface). It chops the matrix into 8 blocks. each CPU takes a block to calculate. 
+
+
+https://github.com/recreate/NeedlemanWunsch
