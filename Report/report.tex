@@ -61,7 +61,7 @@ In Bioinformatics, one of the well-known problem is understanding evolutionary r
 
 \section{Introduction}
 
-The Needleman-Wunsch(NW) algorithm is global sequence alignment method that exemplifies the relationship between sequences using a scoring system. Using a dynamic programming approach, there are two parts to the algorithm in order to retrieve the optimal score: creating a matrix and traceback. The traceback method is somewhat trivial that can be accomplished in linear time. However, the creation of the scoring matrix poses a more complex problem that we will be focusing on. 
+The Needleman-Wunsch(NW) algorithm is global sequence alignment method that exemplifies the relationship between sequences using a scoring system. Using a dynamic programming approach, there are two parts to the algorithm in order to retrieve the optimal score: creating a matrix and traceback. The traceback method can be accomplished in linear time; however, the creation of the scoring matrix poses a more complex problem that we will be focusing on. 
 
 Overall, the NW algorithm achieves a $O(n\cdot m)$ time complexity and $O(n\cdot m)$ space complexity, where $n$ and $m$ are the lengths of the input sequences to be aligned. Although this is not an issue if the sequences are small, as they increase, the size of the scoring matrix as well as computing it grows in a quadratic fashion. For huge datasets that are the norm within the computational biology field, this poses an issue. For this reason, speeding up this algorithm can have great affects within the bioinformatics community, if not at least provide some insight into how to parallelize such an algorithm. 
 
@@ -103,18 +103,22 @@ The lock-based method will contain a few mutexes. Mutexes are locks used to ensu
 
 \section{Implementation Overview}
 \subsection{Lock Based Implementation 1}
-The first implementation of a parallel NW algorithm makes use of a single lock and a pool, implemented as an array(vector). Before the algorithm starts spinning up threads to do work, the first row/column of the scoring matrix is computed. These computations are somewhat trivial and are only based on the previous single calculation. The main idea of this implementation is as follows: The first thread begins to calculate the first cell. When it is finished, the thread adds two items into the pool. These two items are the cells directly below and directly to the right. Adding these items to the pool indicates that they have at least one of the two scores needed to calculate its score. This cycle continues until the matrix has been complete.
+The first implementation of a parallel NW algorithm makes use of a single lock and a pool, implemented as an vector array. Before the algorithm starts spinning up threads to do work, the first row/column of the scoring matrix is computed. These computations are only based on the previous single calculation. The main idea of this implementation is as follows: The first thread begins to calculate the first cell. When it is finished, the thread adds two items into the pool. These two items are the cells directly below and directly to the right. Adding these items to the pool indicates that they have at least one of the two scores needed to calculate its score. This cycle continues until the matrix has been complete. There are a few protocols added to ensure that out-of-bound cells are not being added to the pool and ensures that the values needed to compute the current cell value are complete. 
+
+In the pseudocode below, each cell is set to INT_MIN, minimum value for int, and once it computes the maximum score, the algorithm replaces INT_MIN with the new score. The pseudocode depicts two methods: thread_function and findvalue. thread_function is where each of the threads tries to dequeue an item from the pool, if possible. findvalue is where the algorithm finds the value of the cell and adds the two other values. 
 
 23452345PSUEDOCODE3523452345
 
 
 The lock in this implementation allows us to ensure no issues arise when accessing the pool. For instance, if a thread takes an element from the pool to work on, it may be possible that another thread attempts to access the same element. We must lock each time we enqueue an element into the pool, as well as whenever we check or dequeue an element. 
 
-This implementation is a somewhat coarse grain locking scheme, where this single lock becomes a bottleneck, especially with the addition of threads. This implementation's performance will suffer greatly as it is scaled up with multiple CPUs(threads). As more CPUs are performing operations in this implementation, a higher number of threads must be stopped for one single thread whether it is enqueueing, dequeueing, or simply checking the pool. 
+This implementation is a coarse grain locking scheme, where this single lock becomes a bottleneck, especially with the addition of threads. This implementation's performance will suffer greatly as it is scaled up with multiple CPUs(threads). As more CPUs are performing operations in this implementation, a higher number of threads must be stopped for one single thread whether it is enqueueing, dequeueing, or simply checking the pool. Unlike the next method, this implementation does not have any pointers for the vector array. Thus, the same lock used to enqueue is the same one being used to dequeue. Due to the poor performance, another lock-based implementation was created to speed the time and efficiency. 
 \subsection{Lock Based Implementation 2}
-In this lock-based implementation, we use the same approach of how to solve the problem. However, we use two different locks, one for enqueueing and one for dequeueing from the pool. In this implementation, the pool is implemented as a linked list, in which we use head and tail pointers. This allows us to access the pool with less constraint. As long as the pool is not empty, threads will experience less time waiting for a lock to be released. This means we can asynchronously dequeue and enqueue while there is something in the pool. 
+In this lock-based implementation, we use the same approach of how to solve the problem. However, we use two different locks, one for enqueueing and one for dequeueing from the pool. Unlike the last method, there are two pointers used for the pool, since the pool is implemented as a linked list, in which we use head and tail pointers. This allows us to access the pool with less constraint. As long as the pool is not empty, threads will experience less time waiting for a lock to be released. This means we can asynchronously dequeue and enqueue while there is something in the pool. 
 This is an attempt to speed up our first lock-based implementation and provide a more fine grained locking approach. 
+
 \subsection{Lock Free Implementation}
+For the last implementation, a lock-free approach was generated in hope of speeding the time and eliminate the contention in the locks. As shown in the pseudocode below, the same method of calculating and adding items to the pool stays the same. The differences is when dequeuing and enqueuing items from the pool. Although not shown in the code below, the enqueue/dequeue have the tail/head pointer paramaters and uses CAS to retrieve or add items into the pool. 
 
 
 
@@ -162,44 +166,11 @@ reconceptualize approach to algorithm, possibly only put calculated items into i
 
 \section{Appendix}
 \subsection{Challenges}
-\begin{itemize}
-	\item
-	Lock based implementation
-	\item
-	Achieving speedup against the original NW algorithm
-	\item 
-	Achieving speedup comparable to other parallel implementations of sequence alignment algorithms
-	\item
-	using pools effectively to avoid ABA
-	\item 
-	acquiring implementations of related work that will compared against our algorithm. 
-\end{itemize}
+The first challenge was to analyze the NW algorithm and figure out a way to generate a concurrent program. With myraid of methods already generated, we wanted to implement the lessons taught in class into the project. The first implementation was a lock-based method using a vector array pool. Although this algorithm provided a new insight to the NW, there were numerous of problems that occurred when testing larger test cases. Not only was it was going slow, it was also showing segmenation faults in some instances. After researching the problem and figuring out the solution, it was due to not locking in some of the places within the algorithm. After the changes were made, the segmentation fault dissolved; however, the bottleneck situation was still an issue. 
 
-\subsection{Completed Tasks}
-\begin{itemize}
-	\item
-	Implementation of sequential Needleman-Wunsch algorithm
-	\item
-	Abstract/Introduction/Related Work/Background complete within report
-	\item
-	Dataset acquired to test our algorithms
-\end{itemize}
+In the second implementation, we immediately addressed the lock issued from the last method. Instead of using a vector array, a linked-list was used for the pool. In this way, two pointers can be used to enqueue/dequeue. Additionally, instead of one lock, two locks were used. Implementation two was able to decrease by more than sixty percent of the first one. However, this was still a lock-based method. We wanted to see if we can further decrease the time with a lock-free way. 
 
-
-\subsection{Remaining Tasks}
-\begin{itemize}
-	\item
-	Complete parallel implementation of algorithm
-	\item
-	Create testing suite to ensure results are correct
-	\item
-	Indentify concurrency validation software to use
-	\item
-	Gathering results for comparing with our algorithm
-	\item
-	Complete report
-\end{itemize}
-
+The last method CAS was a considerable stumbling block. It was convoluted at first of how to implement it and figure out a concurrent method. 
 
 \bibliography{references}
 \bibliographystyle{plain}
