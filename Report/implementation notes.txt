@@ -1,0 +1,43 @@
+1 vs 3(lock based)
+  -vector vs linked list
+  
+
+1 lock
+-lock based
+-pool is queue
+  -enqueue: seg fault whn we enqueue, need to lock both enqueue and dequeue
+  -NEED same lock for enqueueing and dequeueing because we access the same vector
+  -takes a long time because of bottleneck of one lock  
+-coarse grained locking
+
+3 lock
+-use linked list instead of array
+  -able to separate enqueue and dequeue locks
+    -use head and tail pointer, sepearte locks. 
+-fine grained locking
+  
+
+2 lock free
+-use linked list with pool
+-lock free pool
+-ch10 unbounded lock free queue
+  -use same idea
+-use fringe?
+-
+-
+
+
+-lock adds sequential bottleneck
+
+ch9 206
+-why is lockfree bad?
+-why is not faster than sequential?
+  a lot of contention at certain entry points of pool
+  -wait free!!
+  -a lot of overhead?(parallel overhead)
+  
+  
+after certain amount of length of input, overhead takes over computation and sequential is better!(around 3000)
+
+
+touch on the dataset(real genome!!)

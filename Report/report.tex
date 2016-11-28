@@ -10,6 +10,9 @@
 \usepackage{amsmath}
 \usepackage{siunitx}
 \usepackage{verbatim}
+\usepackage[normalem]{ulem}
+\usepackage{graphicx}
+\graphicspath{{images/}}
 % ----------------------------------------------------------------
 \vfuzz2pt % Don't report over-full v-boxes if over-edge is small
 \hfuzz2pt % Don't report over-full h-boxes if over-edge is small
@@ -98,13 +101,46 @@ In both the lock-based and lock-free implementation, it uses an unbounded pool a
 
 The lock-based method will contain a few mutexes. Mutexes are locks used to ensure mutual exclusion on critical sections. The lock-free does not use synchronization primitives, such as the mutex. It is a program that must be thread-safe when accessing a shared data. When constructing a lock-free program, primitives like the CAS (compare-and-swap) is used. The CAS is a type of instruction that has three parameters: the address of object x, value it is expected e, and value that it needs to change to v. When it is executed, CAS checks if x is equal to e. If true, then the value is updated to v and returns true; otherwise, x is not altered and returns false. 
 
-\section{Overview}
-Our implementation program being build is a locked based system that contains a 2D array for the matrix, a pool, and mutexes. In the lock-based, the first row/column is first computed. The first thread begins calculated the first cell. When it is finished, the thread adds two items into the pool where other threads can retrieve and start computing its score. This cycle continues until the matrix has been complete.
-The lock in the program is used every time a thread retrieves an item in the pool to provide mutual exclusion. It is critical that two threads do not receive the same item from the pool that it would need to compute on. Additionally, there will be a second mutex that will increment every time a cell has been completed. The purpose of this variable is to ensure the program knows when to stop.
-If time permits, a second program will be constructed to be a lock-free based algorithm using the same idea presented in the first method. Unlike the first, the second algorithm will consist of compare-and-set operations with a status array to determine if a cell is Busy, Waiting, or Undefined. It will have similar concepts of the elimination stack presented in Chapter 10. 
+\section{Implementation Overview}
+\subsection{Lock Based Implementation 1}
+The first implementation of a parallel NW algorithm makes use of a single lock and a pool, implemented as an array(vector). Before the algorithm starts spinning up threads to do work, the first row/column of the scoring matrix is computed. These computations are somewhat trivial and are only based on the previous single calculation. The main idea of this implementation is as follows: The first thread begins to calculate the first cell. When it is finished, the thread adds two items into the pool where other threads can retrieve and start computing its score. This cycle continues until the matrix has been complete.
+The lock in this implementation allows us to ensure no issues arise when accessing the pool. For instance, if a thread takes an element from the pool to work on, it may be possible that another thread attempts to access the same element. We must lock each time we enqueue an element into the pool, as well as whenever we check or dequeue an element. 
+This implementation is a somewhat coarse grain locking implementation, where this single lock becomes a bottleneck, especially with the addition of threads. This means that this implementation's performance will suffer greatly as it is scaled up with multiple CPUs(threads). As more CPUs are performing operations in this implementation, they must all be stopped for one single thread whether it is enqueueing, dequeueing, or simply checking the pool. 
+\subsection{Lock Based Implementation 2}
+In this lock based implementation, we use the same approach of how to solve the problem. However, we use two different locks, one for enqueueing and one for dequeueing from the pool. In this implementation, the pool is implemented as a linked list, in which we use head and tail pointers. This allows us to access the pool with less constraint. As long as the pool is not empty, threads will experience much less time waiting. This means we can asynchronously dequeue and enqueue while there is something in the pool. 
+This is an attempt to speed up our first lock based implementation and provide a finer grain locking protocol. 
+\subsection{Lock Free Implementation}
+
+
 
 \section{Experimental Results}
--TBD-
+
+
+\begin{figure*}
+\centering
+\includegraphics[scale=0.6]{sequential_vs_parallel}
+\caption{Sequential vs Parallel Implementations}
+\medskip
+\small
+Red: Lock Based \#1\\ Green: Lock Based \#2\\ Orange: Lock Free\\ Blue: Sequential    
+\end{figure*}
+
+
+
+
+\useunder{\uline}{\ul}{}
+\begin{table*}[t]
+	\centering
+	\caption{}
+	\label{my-label}
+	\begin{tabular}{ccccc}
+		{\ul Sequence Length}                                                                     & \begin{tabular}[c]{@{}c@{}}Sequential\\ (\end{tabular} & \begin{tabular}[c]{@{}c@{}}Lock \#1\\ (2 thread)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Lock \#2\\ (2 thread)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Lock Free\\ (2 thread)\end{tabular} \\ \hline
+		\multicolumn{1}{|c|}{\begin{tabular}[c]{@{}c@{}}500\\ (Bison - Hamster)\end{tabular}}     & \multicolumn{1}{c|}{0.011716}                          & \multicolumn{1}{c|}{1.92007}                                  & \multicolumn{1}{c|}{0.302479}                                 & \multicolumn{1}{c|}{0.283637}                                  \\ \hline
+		\multicolumn{1}{|c|}{\begin{tabular}[c]{@{}c@{}}974\\ (Rabbit - Polar Bear)\end{tabular}} & \multicolumn{1}{c|}{0.038957}                          & \multicolumn{1}{c|}{13.3043}                                  & \multicolumn{1}{c|}{1.26447}                                  & \multicolumn{1}{c|}{1.28418}                                   \\ \hline
+		\multicolumn{1}{|c|}{\begin{tabular}[c]{@{}c@{}}1200\\ (Fish - Dolphin)\end{tabular}}     & \multicolumn{1}{c|}{0.066464}                          & \multicolumn{1}{c|}{23.9059}                                  & \multicolumn{1}{c|}{2.10464}                                  & \multicolumn{1}{c|}{2.44018}                                   \\ \hline
+		\multicolumn{1}{|c|}{\begin{tabular}[c]{@{}c@{}}2000\\ (Goat - Giraffe)\end{tabular}}     & \multicolumn{1}{c|}{0.18204}                           & \multicolumn{1}{c|}{107.214}                                  & \multicolumn{1}{c|}{5.8305}                                   & \multicolumn{1}{c|}{7.18229}                                   \\ \hline
+	\end{tabular}
+\end{table*}
 
 \section{Conclusion}
 -TBD-
