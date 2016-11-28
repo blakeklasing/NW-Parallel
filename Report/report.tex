@@ -170,8 +170,7 @@ The first challenge was to analyze the NW algorithm and figure out a way to gene
 
 In the second implementation, we immediately addressed the lock issued from the last method. Instead of using a vector array, a linked-list was used for the pool. In this way, two pointers can be used to enqueue/dequeue. Additionally, instead of one lock, two locks were used. Implementation two was able to decrease by more than sixty percent of the first one. However, this was still a lock-based method. We wanted to see if we can further decrease the time with a lock-free way. 
 
-The last method CAS was a considerable stumbling block. It was convoluted at first of how to implement it and figure out a concurrent method. 
-
+Although, Implementation three was similar to the other three, it was a bit convoluted in where CAS should be placed; however, once it was understood where it should go, everything else fell into place. 
 \bibliography{references}
 \bibliographystyle{plain}
 
