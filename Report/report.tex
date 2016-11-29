@@ -105,7 +105,7 @@ The lock-based method will contain a few mutexes. Mutexes are locks used to ensu
 \subsection{Lock Based Implementation 1}
 The first implementation of a parallel NW algorithm makes use of a single lock and a pool, implemented as an vector array. Before the algorithm starts spinning up threads to do work, the first row/column of the scoring matrix is computed. These computations are only based on the previous single calculation. The main idea of this implementation is as follows: The first thread begins to calculate the first cell. When it is finished, the thread adds two items into the pool. These two items are the cells directly below and directly to the right. Adding these items to the pool indicates that they have at least one of the two scores needed to calculate its score. This cycle continues until the matrix has been complete. There are a few protocols added to ensure that out-of-bound cells are not being added to the pool and ensures that the values needed to compute the current cell value are complete. 
 
-In the pseudocode below, each cell is set to INT_MIN, minimum value for int, and once it computes the maximum score, the algorithm replaces INT_MIN with the new score. The pseudocode depicts two methods: thread_function and findvalue. thread_function is where each of the threads tries to dequeue an item from the pool, if possible. findvalue is where the algorithm finds the value of the cell and adds the two other values. 
+In the pseudocode below, each cell is set to INT\_MIN, minimum value for int, and once it computes the maximum score, the algorithm replaces INT\_MIN with the new score. The pseudocode depicts two methods: thread\_function and findvalue. thread\_function is where each of the threads tries to dequeue an item from the pool, if possible. findvalue is where the algorithm finds the value of the cell and adds the two other values. 
 
 23452345PSUEDOCODE3523452345
 
@@ -127,14 +127,28 @@ In Figure 1, we can see the performance of each implementation measured in milli
 
 Figures 2-4 show the effect of adding more threads to the parallel implementations. Each figure displays 4 groupings which represent a pair of aligned sequences sorted by length: 500, 974, 1200, 2000. Within each grouping, the 3 graphs represent 2, 3, and 4 threads, respectively. In each implementation, we notice that there aren't any significant performance increase with the addition of more threads. In fact, in some cases, the runtimes were worse with more threads added. However, this is most likely due to the randomness of the scheduler between executions. 
 
-\begin{figure}
-\centering
-\includegraphics[scale=0.6]{sequential_vs_parallel}
-\caption{Implementation Runtimes}
-\medskip
-\small
-Red: Lock-Based \#1\\ Green: Lock-Based \#2\\ Orange: Lock-Free\\ Blue: Sequential    
-\end{figure}
+\section{Conclusion and Future Work}
+Parallelizing the Needleman-Wunsch algorithm to obtain a significant speedup is not a trivial task when attempting to optimally align two sequences. Conceptually, this algorithm is not very computationally intensive between synchronization operations. Because of this, the overhead brought on from the synchronization protocols within our proposed implementations substantially slows down this algorithm. However, employing different fundamental synchronization protocols does offer us speedup where possible. 
+
+Some future work that we would like to explore includes re-conceptualizing our approach to parallelizing the Needleman-Wunsch algorithm. One possibility is reversing the data that is stored within the pool. Instead of storing items that are ready to be calculated, store items that have already been calculated to only be dequeued once instead of twice. 
+
+\section{Appendix}
+\subsection{Challenges}
+The first challenge was to analyze the NW algorithm and figure out a way to generate a concurrent program. With myraid of methods already generated, we wanted to implement the lessons taught in class into the project. The first implementation was a lock-based method using a vector array pool. Although this algorithm provided a new insight to the NW, there were numerous of problems that occurred when testing larger test cases. Not only was it was going slow, it was also showing segmenation faults in some instances. After researching the problem and figuring out the solution, it was due to not locking in some of the places within the algorithm. After the changes were made, the segmentation fault dissolved; however, the bottleneck situation was still an issue. 
+
+In the second implementation, we immediately addressed the lock issued from the last method. Instead of using a vector array, a linked-list was used for the pool. In this way, two pointers can be used to enqueue/dequeue. Additionally, instead of one lock, two locks were used. Implementation two was able to decrease by more than sixty percent of the first one. However, this was still a lock-based method. We wanted to see if we can further decrease the time with a lock-free way. 
+
+Although, Implementation three was similar to the other three, it was a bit convoluted in where CAS should be placed; however, once it was understood where it should go, everything else fell into place. 
+
+
+\begin{figure*}
+	\centering
+	\includegraphics[scale=0.6]{sequential_vs_parallel}
+	\caption{Implementation Runtimes}
+	\medskip
+	\small
+	Red: Lock-Based \#1\\ Green: Lock-Based \#2\\ Orange: Lock-Free\\ Blue: Sequential    
+\end{figure*}
 
 \begin{figure*}
 	\centering
@@ -154,52 +168,8 @@ Red: Lock-Based \#1\\ Green: Lock-Based \#2\\ Orange: Lock-Free\\ Blue: Sequenti
 	\caption{Lock-Free Thread Scaling} 
 \end{figure*}
 
-
-\section{Conclusion and Future Work}
-Parallelizing the Needleman-Wunsch algorithm to obtain a significant speedup is not a trivial task when attempting to optimally align two sequences. Conceptually, this algorithm is not very computationally intensive between synchronization operations. Because of this, the overhead brought on from the synchronization protocols within our proposed implementations substantially slows down this algorithm. However, employing different fundamental synchronization protocols does offer us speedup where possible. 
-
-Some future work that we would like to explore includes re-conceptualizing our approach to parallelizing the Needleman-Wunsch algorithm. One possibility is reversing the data that is stored within the pool. Instead of storing items that are ready to be calculated, store items that have already been calculated to only be dequeued once instead of twice. 
-
-
-
-\section{Appendix}
-\subsection{Challenges}
-The first challenge was to analyze the NW algorithm and figure out a way to generate a concurrent program. With myraid of methods already generated, we wanted to implement the lessons taught in class into the project. The first implementation was a lock-based method using a vector array pool. Although this algorithm provided a new insight to the NW, there were numerous of problems that occurred when testing larger test cases. Not only was it was going slow, it was also showing segmenation faults in some instances. After researching the problem and figuring out the solution, it was due to not locking in some of the places within the algorithm. After the changes were made, the segmentation fault dissolved; however, the bottleneck situation was still an issue. 
-
-In the second implementation, we immediately addressed the lock issued from the last method. Instead of using a vector array, a linked-list was used for the pool. In this way, two pointers can be used to enqueue/dequeue. Additionally, instead of one lock, two locks were used. Implementation two was able to decrease by more than sixty percent of the first one. However, this was still a lock-based method. We wanted to see if we can further decrease the time with a lock-free way. 
-
-Although, Implementation three was similar to the other three, it was a bit convoluted in where CAS should be placed; however, once it was understood where it should go, everything else fell into place. 
 \bibliography{references}
 \bibliographystyle{plain}
-
-\begin{comment}
-
-Martins, W. S., et al. "A multithreaded parallel implementation of a dynamic programming algorithm for sequence comparison." Pacific Symposium on Biocomputing. Vol. 6. 2001.
-Url: http://wwwmayr.in.tum.de/lehre/2007SS/cb/reading/Martins01.pdf
-
-2. Seguel, Jaime, and Carlos Torres. "Paralellization of Needleman-Wunsch String Alignment Method." (2011): 239-244.
-Url: http://www.worldcomp-proceedings.com/proc/p2011/BIC5034.pdf
-
-3. Devi, S. Nirmala, and S. P. Rajagopalan. "A modified dynamic parallel algorithm for sequence alignment in biosequences." International Journal of Computer Applications 60.18 (2012).
-Url: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.303.3050&rep=rep1&type=pdf
-
-4. de la Torre, Luis, and Jaime Seguel. "A Parallel Needleman-Wunsch-Hirschberg Bio-sequence Alignment Algorithm." CSC. 2010.
-Url: https://www.researchgate.net/publication/221142998_A_Parallel_Needleman_-_Wunsch_-_Hirschberg_Bio-sequence_Alignment_Algorithm 
-
-5. 
-Fa, Z; Xiang-Zhen, Q; Zhi-Yong, L. A parallel Smith-Waterman algorithm based on divide and conquer. Proceedings Fifth International Conference on Algorithms & Architectures for Parallel Processing, 2002. 162, Jan. 2002.
-
-
-6. Smith, Temple F., and Michael S. Waterman. "Identification of Common Molecular Subsequences." Journal of Molecular Biology 147.1 (1981): 195-97. Web.
-http://dornsife.usc.edu/assets/sites/516/docs/papers/msw_papers/msw-042.pdf 
-
----- Book Reference
-Herlihy, Maurice, and Nir Shavit. The Art of Multiprocessor Programming. Amsterdam: Elsevier/Morgan Kaufmann, 2008. Print.
-
--- understanding the NW problem reference
-
-"Needleman–Wunsch Algorithm." Wikipedia. Wikimedia Foundation, n.d. Web.
-\end{comment}
 
  % ----------------------------------------------------------------
 \end{document}

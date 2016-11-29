@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2015.9.13)  28 NOV 2016 22:22
+This is pdfTeX, Version 3.14159265-2.6-1.40.15 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2015.9.13)  28 NOV 2016 22:39
 entering extended mode
 **report.tex
 (report.tex
@@ -666,61 +666,64 @@ Missing character: There is no ˜ in font ptmr7t!
 Missing character: There is no â in font ptmr7t!
 Missing character: There is no € in font ptmr7t!
 Missing character: There is no ˜ in font ptmr7t!
- [2]
-<images/sequential_vs_parallel.png, id=16, 452.4403pt x 272.51813pt>
+
+Underfull \hbox (badness 1590) in paragraph at lines 108--109
+[]\OT1/ptm/m/n/10 In the pseu-docode be-low, each cell is set to
+ []
+
+[2]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [3]
+<images/sequential_vs_parallel.png, id=19, 452.4403pt x 272.51813pt>
 File: images/sequential_vs_parallel.png Graphic file (type png)
 
 <use images/sequential_vs_parallel.png>
 Package pdftex.def Info: images/sequential_vs_parallel.png used on input line 1
-29.
+46.
 (pdftex.def)             Requested size: 271.46628pt x 163.51213pt.
+LaTeX Font Info:    Try loading font information for OT1+phv on input line 147.
 
-Overfull \hbox (50.1394pt too wide) in paragraph at lines 129--130
- [][] 
- []
-
-LaTeX Font Info:    Try loading font information for OT1+phv on input line 130.
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\ot1phv.fd"
 File: ot1phv.fd 2001/06/04 scalable font definitions for OT1/phv.
 )
 LaTeX Font Info:    Font shape `OT1/phv/bx/n' in size <10> not available
-(Font)              Font shape `OT1/phv/b/n' tried instead on input line 130.
+(Font)              Font shape `OT1/phv/b/n' tried instead on input line 147.
 
-<images/parallel1.png, id=18, 550.30594pt x 299.61937pt>
+<images/parallel1.png, id=21, 550.30594pt x 299.61937pt>
 File: images/parallel1.png Graphic file (type png)
 
 <use images/parallel1.png>
-Package pdftex.def Info: images/parallel1.png used on input line 138.
+Package pdftex.def Info: images/parallel1.png used on input line 155.
 (pdftex.def)             Requested size: 330.18611pt x 179.77301pt.
 
-<images/parallel2-lock.png, id=19, 547.2947pt x 298.11375pt>
+<images/parallel2-lock.png, id=22, 547.2947pt x 298.11375pt>
 File: images/parallel2-lock.png Graphic file (type png)
 
 <use images/parallel2-lock.png>
-Package pdftex.def Info: images/parallel2-lock.png used on input line 144.
+Package pdftex.def Info: images/parallel2-lock.png used on input line 161.
 (pdftex.def)             Requested size: 328.37935pt x 178.86963pt.
 
-<images/parallel3-lockfree.png, id=20, 539.01375pt x 289.83281pt>
+<images/parallel3-lockfree.png, id=23, 539.01375pt x 289.83281pt>
 File: images/parallel3-lockfree.png Graphic file (type png)
 
 <use images/parallel3-lockfree.png>
-Package pdftex.def Info: images/parallel3-lockfree.png used on input line 150.
+Package pdftex.def Info: images/parallel3-lockfree.png used on input line 167.
 (pdftex.def)             Requested size: 323.41074pt x 173.90102pt.
- [3] [4 <./images/parallel1.png> <./images/parallel2-lock.png> <./images/parall
-el3-lockfree.png>]
-LaTeX Font Info:    Try loading font information for OMS+ptm on input line 166.
 
 
-("C:\Program Files\MiKTeX 2.9\tex\latex\psnfss\omsptm.fd"
-File: omsptm.fd 
-)
-LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 166.
+! LaTeX Error: There's no line here to end.
 
-Underfull \hbox (badness 1033) in paragraph at lines 170--172
-[]\OT1/ptm/m/n/10 Achieving speedup com-pa-ra-ble to other par-al-
- []
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.171 
+      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
 
 (report.bbl
 Underfull \hbox (badness 7151) in paragraph at lines 4--7
@@ -736,28 +739,29 @@ Missing character: There is no “ in font ptmr7t!
 Missing character: There is no â in font ptmr7t!
 Missing character: There is no € in font ptmr7t!
 Missing character: There is no “ in font ptmr7t!
-) [5 <./images/sequential_vs_parallel.png>] (report.aux) ) 
+) [4] [5 <./images/sequential_vs_parallel.png> <./images/parallel1.png>]
+[6 <./images/parallel2-lock.png> <./images/parallel3-lockfree.png>] (report.aux
+) ) 
 Here is how much of TeX's memory you used:
- 11609 strings out of 493698
- 240133 string characters out of 3144412
- 255958 words of memory out of 3000000
- 14815 multiletter control sequences out of 15000+200000
+ 11592 strings out of 493698
+ 239853 string characters out of 3144412
+ 254950 words of memory out of 3000000
+ 14801 multiletter control sequences out of 15000+200000
  40271 words of font info for 89 fonts, out of 3000000 for 9000
  1025 hyphenation exceptions out of 8191
  39i,9n,39p,10394b,494s stack positions out of 5000i,500n,10000p,200000b,50000s
-{C:/Program Files/MiK
-TeX 2.9/fonts/enc/dvips/fontname/8r.enc}<C:/Program Files/MiKTeX 2.9/fonts/type
-1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public
-/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfont
-s/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmsy
-10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/courier/ucrr8a.pfb><C:/Prog
-ram Files/MiKTeX 2.9/fonts/type1/urw/helvetic/uhvb8a.pfb><C:/Program Files/MiKT
-eX 2.9/fonts/type1/urw/times/utmb8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type
-1/urw/times/utmr8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmri
-8a.pfb>
-Output written on report.pdf (5 pages, 160777 bytes).
+{C:/Program Files/MiKTeX 2.9/fonts/enc/dvips/fontname/8r.enc}<C:/Program Fil
+es/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Program Files/MiKTe
+X 2.9/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Program Files/MiKTeX 2.9/fo
+nts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1
+/public/amsfonts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/cou
+rier/ucrr8a.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/helvetic/uhvb8a.pf
+b><C:/Program Files/MiKTeX 2.9/fonts/type1/urw/times/utmb8a.pfb><C:/Program Fil
+es/MiKTeX 2.9/fonts/type1/urw/times/utmr8a.pfb><C:/Program Files/MiKTeX 2.9/fon
+ts/type1/urw/times/utmri8a.pfb>
+Output written on report.pdf (6 pages, 162504 bytes).
 PDF statistics:
- 61 PDF objects out of 1000 (max. 8388607)
+ 64 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  21 words of extra memory for PDF output out of 10000 (max. 10000000)
 
