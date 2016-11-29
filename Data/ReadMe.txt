@@ -1,0 +1,3 @@
+Experiments README File
+
+The following data from this folder was used as test cases for this project. These genomes that were used are from the National Center of Biotechnology Information. The benchmarks are substrings of the genome for each respective animal. The animals and genomic substrings that were used include: bison vs hamster(length of 500),Rabbit and Polar Bear(length of 974), Fish and Dolphin(length of 1200), Goat and Giraffe(length of 2000). The results of these experiments can be seen in the final paper. 
