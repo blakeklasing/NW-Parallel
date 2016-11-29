@@ -112,55 +112,53 @@ In the pseudocode below, each cell is set to INT_MIN, minimum value for int, and
 
 The lock in this implementation allows us to ensure no issues arise when accessing the pool. For instance, if a thread takes an element from the pool to work on, it may be possible that another thread attempts to access the same element. We must lock each time we enqueue an element into the pool, as well as whenever we check or dequeue an element. 
 
-This implementation is a coarse grain locking scheme, where this single lock becomes a bottleneck, especially with the addition of threads. This implementation's performance will suffer greatly as it is scaled up with multiple CPUs(threads). As more CPUs are performing operations in this implementation, a higher number of threads must be stopped for one single thread whether it is enqueueing, dequeueing, or simply checking the pool. Unlike the next method, this implementation does not have any pointers for the vector array. Thus, the same lock used to enqueue is the same one being used to dequeue. Due to the poor performance, another lock-based implementation was created to speed the time and efficiency. 
+This implementation uses a coarse grained locking scheme where this single lock becomes a bottleneck, especially with the addition of many threads. This implementation's performance will suffer greatly as it is scaled up with multiple CPUs(threads). As more CPUs are performing operations in this implementation, a higher number of threads must be stopped for one single thread whether it is enqueueing, dequeueing, or simply checking the pool. 
 \subsection{Lock Based Implementation 2}
 In this lock-based implementation, we use the same approach of how to solve the problem. However, we use two different locks, one for enqueueing and one for dequeueing from the pool. Unlike the last method, there are two pointers used for the pool, since the pool is implemented as a linked list, in which we use head and tail pointers. This allows us to access the pool with less constraint. As long as the pool is not empty, threads will experience less time waiting for a lock to be released. This means we can asynchronously dequeue and enqueue while there is something in the pool. 
 This is an attempt to speed up our first lock-based implementation and provide a more fine grained locking approach. 
 
 \subsection{Lock Free Implementation}
-For the last implementation, a lock-free approach was generated in hope of speeding the time and eliminate the contention in the locks. As shown in the pseudocode below, the same method of calculating and adding items to the pool stays the same. The differences is when dequeuing and enqueuing items from the pool. Although not shown in the code below, the enqueue/dequeue have the tail/head pointer paramaters and uses CAS to retrieve or add items into the pool. 
-
-
+In the lock-free implementation, we use compare-and-swap operations when accessing the pool. Just as the lock-based \#2 implementation, our pool is a linked list of nodes. However, each node's next pointer is an atomic reference in order to use compare-and-swap. Instead of locking all enqueueing threads when one thread is enqueueing, multiple threads can potentially enqueue at the same time if they are not enqueueing the same item. The enqueue operation traverses the list until it finds NULL and attempts to enqueue. If the item is already in the pool, nothing happens and the enqueue fails. Otherwise, the item is added to the pool. The dequeue operation follows similar logic to the enqueue. We attempt to dequeue an item with compare-and-swap. If it fails, meaning an item about to be dequeued has already been dequeued by another thread, the dequeue will retry. This continues until an item is successfully dequeued or the pool is exhausted, in which case the dequeue fails. 
 
 \section{Experimental Results}
-The results gathered from our experimentation include running each algorithm on 5 different benchmarks. The benchmarks used are from real genomes of several animals. The sequences and sequence lengths that were used include: bison vs hamster(length of 500), Rabbit and Polar Bear(length of 974), Fish and Dolphin(length of 1200), Goat and Giraffe(length of 2000). We ran tests to quantify how each implementation performs against each other, as well as how they perform when varying the number of threads. 
+The results gathered from our experimentation include running each algorithm on 5 different benchmarks. The benchmarks used are from real genomes of several animals. These genomes that were used are from the National Center of Biotechnology Information (NCBI). The benchmarks are substrings of the genome for each respective animal. The animals and genomic substrings that were used include: bison vs hamster(length of 500), Rabbit and Polar Bear(length of 974), Fish and Dolphin(length of 1200), Goat and Giraffe(length of 2000). We ran tests to quantify how each implementation performs against each other, as well as how they perform when varying the number of threads. 
 
-In Figure 1, we can see the performance of each implementation measured in milliseconds while varying the length of sequences that are aligned. We can see the first lock-based algorithm performs the worst out of all implementations. For the longest length sequence alignment of 2000 characters, this implementation takes 107,214 ms. The second lock-based algorithm takes 7182.29ms. Compared to the first lock-based algorithm, this is a significant improvement. Using two separate locks substantially increased the performance, due to less contention of the single lock. The lock-free algorithm performs the best out of our parallel implementations, however is not much of an improvement over our fine-grained locking approach. However, we see that as we increase the length of the sequences to be aligned, the performance begins to diverge. Our sequential implementation of the Needleman-Wunsch algorithm outperforms all of the parallel implementations. We believe this is due to the overhead of synchronization taking a substantial amount of time compared to the computation that is allowed to happen in parallel. 
+In Figure 1, we can see the performance of each implementation measured in milliseconds while varying the length of sequences that are aligned. We can see the first lock-based algorithm performs the worst out of all implementations. For the longest length sequence alignment of 2000 characters, this implementation takes 107,214 ms. The second lock-based algorithm takes 7182.29ms. Compared to the first lock-based algorithm, this is a significant improvement. Using two separate locks substantially increased the performance, due to less contention of the single lock. The lock-free algorithm performs the best out of our parallel implementations, however is not much of an improvement over our fine-grained locking approach. However, we see that as we increase the length of the sequences to be aligned, the performance begins to diverge. The sequential implementation of the Needleman-Wunsch algorithm outperforms all of the parallel implementations. We believe this is due to the overhead of synchronization taking a substantial amount of time compared to the computation that is allowed to happen in parallel. 
 
-\begin{figure*}
+Figures 2-4 show the effect of adding more threads to the parallel implementations. Each figure displays 4 groupings which represent a pair of aligned sequences sorted by length: 500, 974, 1200, 2000. Within each grouping, the 3 graphs represent 2, 3, and 4 threads, respectively. In each implementation, we notice that there aren't any significant performance increase with the addition of more threads. In fact, in some cases, the runtimes were worse with more threads added. However, this is most likely due to the randomness of the scheduler between executions. 
+
+\begin{figure}
 \centering
 \includegraphics[scale=0.6]{sequential_vs_parallel}
-\caption{Sequential vs Parallel Implementations}
+\caption{Implementation Runtimes}
 \medskip
 \small
-Red: Lock Based \#1\\ Green: Lock Based \#2\\ Orange: Lock Free\\ Blue: Sequential    
+Red: Lock-Based \#1\\ Green: Lock-Based \#2\\ Orange: Lock-Free\\ Blue: Sequential    
+\end{figure}
+
+\begin{figure*}
+	\centering
+	\includegraphics[scale=0.6]{parallel1}
+	\caption{Lock-Based \#1 Thread Scaling} 
+\end{figure*}
+
+\begin{figure*}
+	\centering
+	\includegraphics[scale=0.6]{parallel2-lock}
+	\caption{Lock-Based \#2 Thread Scaling} 
+\end{figure*}
+
+\begin{figure*}
+	\centering
+	\includegraphics[scale=0.6]{parallel3-lockfree}
+	\caption{Lock-Free Thread Scaling} 
 \end{figure*}
 
 
-
-
-\useunder{\uline}{\ul}{}
-\begin{table*}[t]
-	\centering
-	\caption{}
-	\label{my-label}
-	\begin{tabular}{ccccc}
-		{\ul Sequence Length}                                                                     & \begin{tabular}[c]{@{}c@{}}Sequential\\ (\end{tabular} & \begin{tabular}[c]{@{}c@{}}Lock \#1\\ (2 thread)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Lock \#2\\ (2 thread)\end{tabular} & \begin{tabular}[c]{@{}c@{}}Lock Free\\ (2 thread)\end{tabular} \\ \hline
-		\multicolumn{1}{|c|}{\begin{tabular}[c]{@{}c@{}}500\\ (Bison - Hamster)\end{tabular}}     & \multicolumn{1}{c|}{0.011716}                          & \multicolumn{1}{c|}{1.92007}                                  & \multicolumn{1}{c|}{0.302479}                                 & \multicolumn{1}{c|}{0.283637}                                  \\ \hline
-		\multicolumn{1}{|c|}{\begin{tabular}[c]{@{}c@{}}974\\ (Rabbit - Polar Bear)\end{tabular}} & \multicolumn{1}{c|}{0.038957}                          & \multicolumn{1}{c|}{13.3043}                                  & \multicolumn{1}{c|}{1.26447}                                  & \multicolumn{1}{c|}{1.28418}                                   \\ \hline
-		\multicolumn{1}{|c|}{\begin{tabular}[c]{@{}c@{}}1200\\ (Fish - Dolphin)\end{tabular}}     & \multicolumn{1}{c|}{0.066464}                          & \multicolumn{1}{c|}{23.9059}                                  & \multicolumn{1}{c|}{2.10464}                                  & \multicolumn{1}{c|}{2.44018}                                   \\ \hline
-		\multicolumn{1}{|c|}{\begin{tabular}[c]{@{}c@{}}2000\\ (Goat - Giraffe)\end{tabular}}     & \multicolumn{1}{c|}{0.18204}                           & \multicolumn{1}{c|}{107.214}                                  & \multicolumn{1}{c|}{5.8305}                                   & \multicolumn{1}{c|}{7.18229}                                   \\ \hline
-	\end{tabular}
-\end{table*}
-
 \section{Conclusion and Future Work}
--TBD-
+Parallelizing the Needleman-Wunsch algorithm to obtain a significant speedup is not a trivial task when attempting to optimally align two sequences. Conceptually, this algorithm is not very computationally intensive between synchronization operations. Because of this, the overhead brought on from the synchronization protocols within our proposed implementations substantially slows down this algorithm. However, employing different fundamental synchronization protocols does offer us speedup where possible. 
 
-
-reconceptualize approach to algorithm, possibly only put calculated items into instead of items to be calculated, in order to decrease #1 of dequeue/enqueues (less locking, less contention, more scalable).
-
-
-
+Some future work that we would like to explore includes re-conceptualizing our approach to parallelizing the Needleman-Wunsch algorithm. One possibility is reversing the data that is stored within the pool. Instead of storing items that are ready to be calculated, store items that have already been calculated to only be dequeued once instead of twice. 
 
 
 
