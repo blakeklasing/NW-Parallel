@@ -1,5 +1,9 @@
 \begin{thebibliography}{1}
 
+\bibitem{ncbi}
+National~Center for Biotechnology~Information.
+\newblock https://www.ncbi.nlm.nih.gov/genome/, November 2016.
+
 \bibitem{seguel_2011}
 Carlos~Torres Jaime~Seguel.
 \newblock Paralellization of needleman-wunsch string alignment method.
